@@ -1,24 +1,36 @@
-# Politics Makes Strange Bedfellows
-In 2017, Emmanuel Macron and Marine Le Pen were the final two candidates in the French Presidential Election.  The two candidates had drastically different approaches to governing, and as such, the election was a major topic of discussion on Twitter.
+# French Tweets
+In 2017, Emmanuel Macron and Marine Le Pen were the final two candidates in the French Presidential Election. The two candidates had drastically different approaches to governing, and as such, the election was a major topic of discussion on Twitter.
 
-## The Data
-<a href="https://s3.us-east-2.amazonaws.com/jgartner-test-data/twitter/zippedData.zip">The data</a> you are provided a line delimited json file (746 MB) of tweets from France during that time period.  Your task is to leverage your understanding of Spark, visualization, and feature engineering to explore the dataset and provide answers to some basic questions.  
+## Objective
+The objective for this case study was to determine which of the candidates was mentioned the most on Twitter in the 3 days spanning from 4/26 - 4/29 leading up to the election. In these three days there were a total of 216,912 tweets each have over 20 attributes, so we started off by cleaning the data. 
 
-# Your Task
-You and your team will have the task of reading in, cleaning, and exploring this dataset.  Your job is to gain insight into what is happening during the time period.  Your task for today is to produce the following:
+## Data Cleaning
+**For Mentions**
+Tweets from three days of April 2017 were provided in a json file. In order to access the information the json file was read into a spark resilient distributed dataset (rdd). The format of this rdd was difficult to read.
 
-1. A python script containing helper functions.
-You should be working toward transforming this large cumbersome dataset into something that is regular and easily digestible.  You need to find inconsistencies in the data, and try to think about how you would clean them.  You can do cleaning in data as they are RDDs, DataFrames, or ideally both, but the processes should be calling function that are reusable.
+![img](img/inital_data.png)
 
-2. A presentation about your choices.
-Later this afternoon you'll stop work and get together as a class to present your findings.  You can either choose to use slides or jupyter notebooks.  The latter might be nice, because you may want to highlight bits of code.
+The rdd was converted into a json dictionary and the 'text' key was used to include only the text of each tweet. This rdd was further cleaned to include only words starting with '@' which corresponds to the mentions of other twitter handles. The sortByKey was used to create a count of the mentions of each twitter user. 
+
+![img](img/cleaned_data.png)
+
+showing only first 10 values
+
+**For Macron vs Le Pen Mention Comparison**
+The same tweets from three days in April 2017 were read into a spark dataframe. This dataframe was reduce, using SQL, to include only the text and the timestamp from each tweet. The tweets were filtered to count the number of mentions for each candidate and grouped into hours. 
+
+## Plots
+
+By comparing mentions of both presidential candidates we can see the eventual winner, Marcon, receiving more mentions over the 3 day span. 
+![img](img/MLP_Marcon_together.png)
 
 
-## Hints
-### 1. Non-UTF Characters
-We suggest reading in the data into spark RDDs, not directly into Dataframes.  You can do so using the ```textFile``` command from the ```SparkContext```, and then getting python dictionaries using the ```json``` class.  If you do a ```take(1)```, it should work just fine.  If, however, you try to do a count, you'll end up throwing an error.  This happens because the ```json``` class fails when you encounter the non-utf8 characters in the dataset.  To get around this, you should wrap the json decoding in a ```try - except``` block, and return ```None``` if an exception is hit.  You can then filter out none.
+Graphing the total number of twitter mentions we can see Le Pen received 683 less mentions.
 
-### 2. Messy Data
-This will be the most challenging dataset you've had to work with up to this point.  The data is somewhat large, and tweets are a complicated and messy source of information. Your first steps should be to understand which fields you'll be leveraging.  Once you've read in the data, start by doing a ```take(1)``` to get a feel for what a tweet JSON string looks like.
 
-Also note that data is messy so you'll need to do a lot of checks and filter out inconsistent data.  <b>Being able to adjust based on error messages is an important skill, consider this a chance to practice!</b>
+![img](img/mentions_2.png)
+
+
+## Conclusion
+
+Based on the analysis performed on the raw data, Emmanuael Macron received 61% of the mentions over the three day period.  This may have had an effect on the outcome of the election, given that Macron won receiving over 66% of the votes.
